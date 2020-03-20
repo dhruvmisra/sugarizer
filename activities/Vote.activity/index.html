@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Vote Prototype</title>
+	<meta name="viewport"
+		content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover" />
+	<link rel="prefetch" type="application/l10n" href="locale.ini" />
+	<link rel="stylesheet" media="not screen and (device-width: 1200px) and (device-height: 900px)"
+		href="lib/sugar-web/graphics/css/sugar-96dpi.css">
+	<link rel="stylesheet" media="screen and (device-width: 1200px) and (device-height: 900px)"
+		href="lib/sugar-web/graphics/css/sugar-200dpi.css">
+	<link rel="stylesheet" href="css/activity.css">
+	<link rel="stylesheet" href="css/libnotify.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-tour-standalone.min.css">
+	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+	<script src="lib/vue.min.js"></script>
+	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+	<script src="lib/chart.min.js"></script>
+	<script src="lib/jquery-3.4.1.min.js"></script>
+	<script src="lib/bootstrap-tour-standalone.min.js"></script>
+	<script>if (window.module) module = window.module;</script>
+	<script src="lib/require.js"></script>
+</head>
+
+<body>
+	<div id="app">
+		<toolbar ref="toolbar"  v-bind:stats-open="statsOpen"  v-bind:settings-mode="settingsMode"></toolbar>
+
+		<div id="canvas">
+			<div class="polls-container" v-if="!statsOpen && (!shared || (shared && isHost))">
+				<div class="poll card" v-for="poll in polls" v-bind:key="poll.id">
+					<img class="card-img-top" v-bind:src="poll.type == 'MCQ' ? 'images/mcq.jpg' : 'images/value.jpg'" alt="Card image">
+					<div class="card-body d-flex flex-column">
+						<h5>{{ poll.question }}</h5>
+						<p class="my-0">{{ poll.type }}</p>
+						<p class="text-muted" v-if="poll.type == 'MCQ'"><i>{{ poll.options.length }} options</i></p>
+						<div class="row justify-content-between mt-auto mx-0" v-if="runningPoll && runningPoll.id == poll.id">
+							<button class="btn btn-danger btn-pause mt-auto" v-on:click="stopPoll"></button>
+							<button class="btn btn-stats btn-play" v-bind:class="{ 'btn-info': statsOpen }" v-on:click="switchStats"></button>
+						</div>
+						<button class="btn btn-success btn-play mt-auto" v-on:click="startPoll(poll.id)" v-else></button>
+					</div>
+				</div>
+			</div>
+			
+			<voting-template v-if="!statsOpen && (shared && !isHost)" v-bind:running-poll="runningPoll" v-bind:submitted="submitted" 
+					v-on:vote-submit="voteSubmit"></voting-template>
+			
+			<stats-template v-show="statsOpen" v-bind:running-poll="runningPoll" v-bind:answers="answers" v-bind:stats-open="statsOpen"
+					v-bind:is-host="isHost" v-on:stop-poll="stopPoll" v-on:close-stats="closeStats" ></stats-template>
+			
+		</div>
+
+
+		<button class="toolbutton" id="unfullscreen-button" title="Unfullscreen"></button>
+
+		<localization ref="localization" v-on:localized="localized"></localization>
+		<tutorial ref="tutorial" v-on:end="onHelpEnd"></tutorial>
+	</div>
+
+	<script src="js/l10n.js"></script>
+	<script src="js/tutorial.js"></script>
+	<script src="js/voting-template.js"></script>
+	<script src="js/poll-template.js"></script>
+	<script src="js/stats-template.js"></script>
+	<script src="js/toolbar.js"></script>
+	<script src="js/activity.js"></script>
+</body>
+
+</html>
